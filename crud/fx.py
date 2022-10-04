@@ -75,6 +75,8 @@ def get_ecb(date_from: str, date_to: str) -> pd.DataFrame:
         )
     )
 
+    df["source"] = "ecb"
+
     return df
 
 
@@ -156,5 +158,7 @@ def get_apilayer(date_from, date_to) -> pd.DataFrame:
         .rename(columns={"index": "ts", "variable": "currency"})
         .assign(freq="D")
     )
+
+    df["source"] = "apilayer"
 
     return df

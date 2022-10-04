@@ -92,8 +92,8 @@ def transform(df: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFram
     df_daily = (
         df.copy()
         .query("freq == 'D'")
-        .sort_values("currency")
-        .loc[:, ["currency", "ts", "value"]]
+        .sort_values(["currency", "ts"], ascending=[True, True])
+        .loc[:, ["currency", "ts", "value", "source"]]
     )
 
     df_monthly_existing = df.copy().query("freq == 'M'")
@@ -107,11 +107,12 @@ def transform(df: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFram
         .rename(columns={"index": "currency", "variable": "ts"})
         .assign(freq="M")  # for cleaner concat
         .assign(value=-1)
+        .assign(source="apilayer")
     )
     df_monthly = (
         pd.concat([df_monthly_existing, df_monthly_missing])
-        .sort_values(["value", "currency"], ascending=[False, True])
-        .loc[:, ["currency", "ts", "value"]]
+        .sort_values(["value", "currency", "ts"], ascending=[False, True, True])
+        .loc[:, ["currency", "ts", "value", "source"]]
     )
 
     df_spot = df.copy().query("freq == 'D'")
@@ -123,8 +124,8 @@ def transform(df: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFram
     df_spot = (
         df_spot.sort_values("ts", ascending=False)
         .drop_duplicates(keep="first", subset="_ym")
-        .sort_values("currency")
-        .loc[:, ["currency", "ts", "value"]]
+        .sort_values(["currency", "ts"], ascending=[True, True])
+        .loc[:, ["currency", "ts", "value", "source"]]
     )
     for col in df_spot.columns:
         if col.startswith("_"):
