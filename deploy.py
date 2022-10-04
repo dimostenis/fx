@@ -80,9 +80,9 @@ def main():
     p.write_text(dedent(compose))
 
     run("git pull")
-    run("docker-compose stop")
-    run("docker-compose build")
-    run("docker-compose -f docker-compose.prod.yml up")
+    run("docker compose stop")
+    run("docker compose build")
+    run("docker compose -f docker-compose.prod.yml up")
 
 
 if __name__ == "__main__":
