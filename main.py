@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import requests
 import structlog
 from fastapi import FastAPI
 from fastapi import Request
@@ -10,6 +9,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from starlette.middleware.sessions import SessionMiddleware
 
+import alerting
 from config import settings
 from fx.forms import router as fx_forms
 from fx.routes import router as fx_router
@@ -32,27 +32,6 @@ app.include_router(fx_router, prefix="/fx", tags=["fx"])
 app.include_router(fx_forms, prefix="/fx", tags=["forms"])
 
 
-async def telegram(text: str) -> None:
-    if not settings.TELEGRAM_ENABLED:
-        return None
-
-    api_url = "https://api.telegram.org"
-    endpoint = "sendMessage"
-    try:
-        requests.post(
-            url=f"{api_url}/bot{settings.TELEGRAM_BOT_TOKEN}/{endpoint}",
-            headers={"Content-type": "application/json"},
-            params={
-                "chat_id": settings.TELEGRAM_CHAT_ID,
-                "text": text,
-                "parse_mode": "HTML",
-            },
-        )
-    except BaseException:
-        log.warning("telegram message not dispatched", message=text)
-    return None
-
-
 @app.exception_handler(Exception)
 async def any_exception(request: Request, exc: Exception):
     """
@@ -70,6 +49,6 @@ async def any_exception(request: Request, exc: Exception):
 
     # send telegram message
     msg = f"<b>Bea FX app exception</b>\n\n{detail}\n<i>url: </i>{url}"
-    await telegram(text=msg)
+    await alerting.telegram(text=msg)
 
     raise exc

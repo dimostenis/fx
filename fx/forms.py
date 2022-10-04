@@ -13,6 +13,7 @@ from fastapi import status
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 
+import alerting
 import crud.cache
 import crud.fx
 from config import settings
@@ -32,6 +33,15 @@ async def fetch_data_form(
     ecb: bool = Form(False),
     apilayer: bool = Form(False),
 ):
+
+    # send telegram message
+    msg = (
+        "<b>Bea FX app run</b>\n\n"
+        f"{date_from}-{date_to}\n"
+        f"<i>ecb: </i>{ecb}\n"
+        f"<i>apilayer: </i>{apilayer}"
+    )
+    await alerting.telegram(text=msg)
 
     # save for next time
     request.session.update({"checkboxes": {"ecb": ecb, "apilayer": apilayer}})
