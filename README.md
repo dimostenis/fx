@@ -8,6 +8,10 @@ Some currencies are to be found on [ECB](ecbapi), but rest must come from elsewh
 
 To access Apilayer API, one must register to obtain API key.
 
+![screenshot](assets/screenshot.jpg)
+
+*Screenshot*
+
 ## Cookies
 
 App uses 1 first party cookie to save last form checkboxes.
@@ -86,26 +90,6 @@ However, if you really wanna, dont forget to use `pre-commit`!
 pre-commit install
 pre-commit
 ```
-
-If you use Visual Studio Code, use this launch.json settings:
-
-```json
-        {
-            "name": "Python: FastAPI",
-            "type": "python",
-            "request": "launch",
-            "module": "uvicorn",
-            "args": [
-                "main:app"
-            ],
-            "jinja": true,
-            "justMyCode": true
-        }
-```
-
-## Plans
-
-Use certificate ...
 
 [ecbapi]: https://sdw-wsrest.ecb.europa.eu/help/
 [apilayerapi]: https://apilayer.com/marketplace/exchangerates_data-api
