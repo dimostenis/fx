@@ -47,7 +47,6 @@ def get_ecb(date_from: str, date_to: str) -> pd.DataFrame:
     logger = log.bind(date_from=date_from, date_to=date_to)
 
     params = {"format": "csvdata", "startPeriod": date_from, "endPeriod": date_to}
-    cols = ["CURRENCY", "FREQ", "TIME_PERIOD", "OBS_VALUE"]
     if csv := crud.cache.get(key=json.dumps(params)):
         logger.info("getting data from cache", source="ECB")
     else:
@@ -64,7 +63,7 @@ def get_ecb(date_from: str, date_to: str) -> pd.DataFrame:
 
     df = (
         pd.read_csv(io.BytesIO(csv))
-        .loc[:, cols]
+        .loc[:, ["CURRENCY", "FREQ", "TIME_PERIOD", "OBS_VALUE"]]
         .rename(
             columns={
                 "CURRENCY": "currency",
@@ -73,9 +72,8 @@ def get_ecb(date_from: str, date_to: str) -> pd.DataFrame:
                 "OBS_VALUE": "value",
             }
         )
+        .assign(source="ecb")
     )
-
-    df["source"] = "ecb"
 
     return df
 
@@ -157,8 +155,7 @@ def get_apilayer(date_from, date_to) -> pd.DataFrame:
         .melt(id_vars="index")
         .rename(columns={"index": "ts", "variable": "currency"})
         .assign(freq="D")
+        .assign(source="apilayer")
     )
-
-    df["source"] = "apilayer"
 
     return df

@@ -6,7 +6,7 @@ from typing import Any
 CACHE_PATH = "tmp/shelve"
 
 
-def get(key) -> Any | None:
+def get(key: str) -> Any | None:
     with shelve.open(CACHE_PATH) as db:
         if key in db:
             return db[key]
@@ -14,6 +14,6 @@ def get(key) -> Any | None:
             return None
 
 
-def create(key, obj) -> None:
+def create(key: str, obj: Any) -> None:
     with shelve.open(CACHE_PATH) as db:
         db[key] = obj
