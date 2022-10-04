@@ -1,0 +1,12 @@
+[entryPoints]
+  [entryPoints.web]
+    address = ":500"
+
+[api]
+insecure = true
+
+[accessLog]
+
+[providers]
+  [providers.docker]
+    exposedByDefault = false

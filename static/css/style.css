@@ -1,0 +1,7 @@
+/* animate progress bar */
+.quotabar {
+    -webkit-transition: width 30.0s ease !important;
+       -moz-transition: width 30.0s ease !important;
+         -o-transition: width 30.0s ease !important;
+            transition: width 30.0s ease !important;
+  }

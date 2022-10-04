@@ -1,0 +1,43 @@
+[tool.poetry]
+name = "bea-fx-rates"
+version = "0.1.0"
+description = ""
+authors = ["Hynek <dimosh3k@gmail.com>"]
+readme = "README.md"
+packages = [{ include = "bea_fx_rates" }]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+aiofiles = "*"
+fastapi = "*"
+gunicorn = "*"
+itsdangerous = "*"
+Jinja2 = "*"
+openpyxl = "*"
+pandas = "*"
+pendulum = "*"
+pydantic = "*"
+python-multipart = "*"
+requests = "*"
+structlog = "*"
+toml = "*"
+uvicorn = {extras = ["standard"], version = "*"}
+
+[tool.poetry.group.dev.dependencies]
+black = "*"
+flake8 = "*"
+mypy = "*"
+pre-commit = "*"
+types-requests = "*"
+
+[tool.isort]
+profile = "black"
+multi_line_output = 7
+force_single_line = true
+
+[tool.flake8]
+line_length = 88
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
