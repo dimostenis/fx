@@ -16,6 +16,7 @@ RUN pip install -r requirements.txt
 
 RUN adduser --system --group $USER
 RUN mkdir $APP_HOME
+RUN mkdir $APP_HOME/tmp
 WORKDIR $APP_HOME
 
 COPY . $APP_HOME
