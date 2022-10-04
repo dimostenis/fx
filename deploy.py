@@ -18,7 +18,7 @@ def run(cmd: str) -> None:
 
 def main():
 
-    print("")
+    print()
     print(":: Bea FX deployment")
     print("::")
 
