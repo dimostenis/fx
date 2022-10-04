@@ -58,7 +58,7 @@ def main():
           - traefik.http.services.app.loadbalancer.server.port=500
           - traefik.http.routers.app-http.entrypoints=http
         volumes:
-          - fx_temp:/web/tmp
+          - fx_temp:/home/app/web/tmp
 
       traefik:
         image: traefik:2.9.1

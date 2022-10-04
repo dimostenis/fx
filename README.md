@@ -66,6 +66,8 @@ uvicorn main:app --host 0.0.0.0 --port 5000 --reload --workers 1
 docker-compose up
 ```
 
+Find running app at `localhost:500`
+
 **3. Deploy on server**
 
 There is no CI, all manually:
