@@ -82,7 +82,7 @@ def main():
     run("git pull")
     run("docker compose stop")
     run("docker compose build")
-    run("docker compose -f docker-compose.prod.yml up -d")
+    run("docker compose -f docker-compose.prod.yml up")
 
 
 if __name__ == "__main__":
