@@ -29,6 +29,14 @@ class Settings(BaseSettings):
     APILAYER_ENDPOINT: str = "https://api.apilayer.com/exchangerates_data/"
     APILAYER_SYMBOLS: str = "RSD,KZT,UAH,UZS"  # daily only
 
+    # get symbols IDs with crud.fx.get_investing_id() or find it in API
+    INVESTINY_SYMBOLS: dict = {
+        "EUR/RSD": 1690,
+        "EUR/KZT": 1656,
+        "EUR/UAH": 1709,
+        "EUR/UZS": 1712,
+    }
+
     class Config:
         # environment variables always take priority over dotenv file
         env_file = ".env"

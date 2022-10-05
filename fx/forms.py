@@ -32,6 +32,7 @@ async def fetch_data_form(
     date_to: str = Form(...),
     ecb: bool = Form(False),
     apilayer: bool = Form(False),
+    investing: bool = Form(False),
 ):
 
     # send telegram message
@@ -44,7 +45,15 @@ async def fetch_data_form(
     await alerting.telegram(text=msg)
 
     # save for next time
-    request.session.update({"checkboxes": {"ecb": ecb, "apilayer": apilayer}})
+    request.session.update(
+        {
+            "checkboxes": {
+                "ecb": ecb,
+                "apilayer": apilayer,
+                "investing": investing,
+            }
+        }
+    )
 
     # date_to cant be in future –> set it to today
     now = pendulum.now(tz="UTC")
@@ -67,13 +76,18 @@ async def fetch_data_form(
 
     ecb_df = pd.DataFrame()
     al_df = pd.DataFrame()
+    inv_df = pd.DataFrame()
 
     if ecb:
         ecb_df = crud.fx.get_ecb(date_from=dic["date_from"], date_to=dic["date_to"])
     if apilayer:
         al_df = crud.fx.get_apilayer(date_from=dic["date_from"], date_to=dic["date_to"])
+    if investing:
+        inv_df = crud.fx.get_investing(
+            date_from=dic["date_from"], date_to=dic["date_to"]
+        )
 
-    df = pd.concat([ecb_df, al_df])
+    df = pd.concat([ecb_df, al_df, inv_df])
     if df.empty:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No data.")
 
@@ -87,6 +101,8 @@ async def fetch_data_form(
             ending += "-ecb"
         if apilayer:
             ending += "-apilayer"
+        if investing:
+            ending += "-investing"
     fname = Path("tmp") / f'{dic["date_from"]}_{dic["date_to"]}{ending}.xlsx'
     with pd.ExcelWriter(str(fname)) as writer:
         df_daily.to_excel(writer, sheet_name="daily", index=False)
@@ -126,19 +142,23 @@ def transform(df: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFram
     )
 
     df_spot = df.copy().query("freq == 'D'")
-    df_spot.loc[:, "_dt"] = pd.to_datetime(df_spot.loc[:, "ts"]).values
-    df_spot.loc[:, "_ym"] = df_spot.apply(
-        lambda row: f'{row["currency"]}-{row["_dt"].year}-{row["_dt"].month}',
-        axis=1,
-    )
-    df_spot = (
-        df_spot.sort_values("ts", ascending=False)
-        .drop_duplicates(keep="first", subset="_ym")
-        .sort_values(["currency", "ts"], ascending=[True, True])
-        .loc[:, ["currency", "ts", "value", "source"]]
-    )
-    for col in df_spot.columns:
-        if col.startswith("_"):
-            del df_spot[col]
+    if not df_spot.empty:
+        df_spot.loc[:, "_dt"] = pd.to_datetime(df_spot.loc[:, "ts"]).values
+        df_spot.loc[:, "_ym"] = df_spot.apply(
+            lambda row: f'{row["currency"]}-{row["_dt"].year}-{row["_dt"].month}',
+            axis=1,
+        )
+        df_spot = (
+            df_spot.sort_values("ts", ascending=False)
+            .drop_duplicates(keep="first", subset="_ym")
+            .sort_values(["currency", "ts"], ascending=[True, True])
+            .loc[:, ["currency", "ts", "value", "source"]]
+        )
+        for col in df_spot.columns:
+            if col.startswith("_"):
+                del df_spot[col]
+    else:
+        # return empty DF in correct shape
+        df_spot = df_spot.loc[:, ["currency", "ts", "value", "source"]]
 
     return df_daily, df_spot, df_monthly

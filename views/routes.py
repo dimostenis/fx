@@ -18,6 +18,7 @@ router = APIRouter()
 class Checkboxes(TypedDict):
     ecb: bool
     apilayer: bool
+    investing: bool
 
 
 @router.get("/", response_class=HTMLResponse)
@@ -34,7 +35,14 @@ async def index_view(request: Request):
 
     # if no cookie, enable all
     checkboxes: Checkboxes
-    checkboxes = request.session.get("checkboxes", {"ecb": True, "apilayer": True})
+    checkboxes = request.session.get(
+        "checkboxes",
+        {
+            "ecb": True,
+            "apilayer": True,
+            "investing": True,
+        },
+    )
 
     context = {
         "request": request,

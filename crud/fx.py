@@ -4,7 +4,10 @@ import io
 import json
 from typing import Any
 
+import investiny.historical
+import investiny.search
 import pandas as pd
+import pendulum
 import requests
 import structlog
 from fastapi import HTTPException
@@ -78,7 +81,7 @@ def get_ecb(date_from: str, date_to: str) -> pd.DataFrame:
     return df
 
 
-def get_apilayer(date_from, date_to) -> pd.DataFrame:
+def get_apilayer(date_from: str, date_to: str) -> pd.DataFrame:
     """
     Fetch FX rates from Apilayer exchange API.
     Currently, there is a limit of 250 calls/month.
@@ -159,3 +162,74 @@ def get_apilayer(date_from, date_to) -> pd.DataFrame:
     )
 
     return df
+
+
+def get_investing(date_from: str, date_to: str) -> pd.DataFrame:
+    logger = log.bind(date_from=date_from, date_to=date_to)
+
+    from_date = pendulum.from_format(date_from, "YYYY-MM-DD")
+    to_date = pendulum.from_format(date_to, "YYYY-MM-DD")
+    to_date_monthly = to_date
+    # dont do monthly if you cant return full month
+    if not to_date.day == to_date.end_of("month").day:
+        # lets go one month less (to last day of it)
+        to_date_monthly = to_date.subtract(months=1).end_of("month")
+
+    # USA date format, lol..
+    date_from_usa = from_date.format("MM/DD/YYYY")
+    # date_to_usa = to_date.format("MM/DD/YYYY")  # daily not yet done
+    date_to_usa_monthly = to_date_monthly.format("MM/DD/YYYY")
+
+    # do monthly
+    dates = []
+    cursor = from_date
+    while cursor < to_date_monthly:
+        dates.append(cursor.format("YYYY-MM"))
+        cursor = cursor.add(months=1)
+
+    monthly = []
+    for symbol, id_ in settings.INVESTINY_SYMBOLS.items():
+        key = f"M|{id_}|{symbol}--{date_from_usa}--{date_to_usa_monthly}"
+
+        if dic := crud.cache.get(key=key):
+            logger.info("getting data from cache", source="investing.com")
+        else:
+            logger.info("getting data via API", source="investing.com")
+            dic = investiny.historical.historical_data(
+                investing_id=id_,
+                from_date=date_from_usa,
+                to_date=date_to_usa_monthly,
+                interval="M",
+            )
+            crud.cache.create(key=key, obj=dic)
+
+        # dic data go from oldes mon to newest
+        currency = symbol.split("/")[1]  # EUR/RSD -> RSD
+        df = pd.DataFrame.from_dict(dic).assign(currency=currency)
+        df.index = dates
+        monthly.append(df)
+
+    # do daily
+    # NOTE Its a problem now, coz investiny API returns only a list of values,
+    # NOTE but I dont know what are the dates? Where were banking holidays? Dunno.
+
+    df = (
+        pd.concat(monthly)
+        .reset_index()
+        .loc[:, ["index", "close", "currency"]]
+        .assign(freq="M")
+        .rename(columns={"index": "ts", "close": "value"})
+        .assign(source="investing.com")
+    )
+
+    return df
+
+
+def get_investing_id(symbol: str):
+    """
+    Ask for a ticker and get internal investing.com ID, so it can be used in investiny
+    """
+
+    res = investiny.search.search_assets(query=symbol, limit=1)
+    log.info(res)
+    return res
