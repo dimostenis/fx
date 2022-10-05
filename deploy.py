@@ -79,8 +79,8 @@ def main():
     p = Path(".") / "docker-compose.prod.yml"
     p.write_text(dedent(compose))
 
-    run("git pull")
     run("docker compose stop")
+    run("git pull")
     run("docker compose build")
 
     # just let user start it as it wont be really detached as it goes via python
