@@ -17,10 +17,8 @@ import alerting
 import crud.cache
 import crud.fx
 
-Path("tmp").mkdir(exist_ok=True)
-router = APIRouter()
-
 log = structlog.get_logger()
+router = APIRouter()
 templates = Jinja2Templates(directory="templates")
 
 
@@ -29,9 +27,9 @@ async def fetch_data_form(
     request: Request,
     date_from: str = Form(...),
     date_to: str = Form(...),
-    ecb: bool = Form(False),
-    apilayer: bool = Form(False),
-    investiny: bool = Form(False),
+    ecb: bool = Form(False),  # checkbox
+    apilayer: bool = Form(False),  # checkbox
+    investiny: bool = Form(False),  # checkbox
 ):
 
     # send telegram message
@@ -62,19 +60,17 @@ async def fetch_data_form(
             detail="date_from must be before date_to",
         )
 
-    ecb_df = pd.DataFrame()
-    al_df = pd.DataFrame()
-    inv_df = pd.DataFrame()
+    dfe = pd.DataFrame()
+    dfa = pd.DataFrame()
+    dfi = pd.DataFrame()
     if ecb:
-        ecb_df = crud.fx.get_ecb(date_from=dic["date_from"], date_to=dic["date_to"])
+        dfe = crud.fx.get_ecb(date_from=dic["date_from"], date_to=dic["date_to"])
     if apilayer:
-        al_df = crud.fx.get_apilayer(date_from=dic["date_from"], date_to=dic["date_to"])
+        dfa = crud.fx.get_apilayer(date_from=dic["date_from"], date_to=dic["date_to"])
     if investiny:
-        inv_df = crud.fx.get_investiny(
-            date_from=dic["date_from"], date_to=dic["date_to"]
-        )
+        dfi = crud.fx.get_investiny(date_from=dic["date_from"], date_to=dic["date_to"])
 
-    df = pd.concat([ecb_df, al_df, inv_df])
+    df = pd.concat([dfe, dfa, dfi])
     if df.empty:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No data.")
 

@@ -27,5 +27,5 @@ async def download_result(fname: str):
 
 @router.get("/investiny/", response_class=JSONResponse)
 async def get_investing_id(symbol: str):
-    """Helper endpoint to get investing IDs for tickers."""
+    """Helper endpoint to get investing IDs of tickers."""
     return crud.fx.get_investing_id(symbol)
