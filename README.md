@@ -8,7 +8,7 @@ Some currencies are to be found on [ECB](ecbapi), but rest must come from elsewh
 
 To access Apilayer API, one must register to obtain API key.
 
-![screenshot](assets/screenshot.jpg)
+![screenshot](assets/screenshot.jpeg)
 
 *Screenshot*
 
