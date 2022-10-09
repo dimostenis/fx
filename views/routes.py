@@ -1,9 +1,11 @@
 from __future__ import annotations
 
 import random
+from typing import Literal
 from typing import TypedDict
 
 import pendulum
+import structlog
 from fastapi import APIRouter
 from fastapi import Request
 from fastapi.responses import HTMLResponse
@@ -13,6 +15,7 @@ import config
 import crud.cache
 from config import settings
 
+log = structlog.get_logger()
 templates = Jinja2Templates(directory="templates")
 router = APIRouter()
 
@@ -20,7 +23,7 @@ router = APIRouter()
 class Checkboxes(TypedDict):
     ecb: bool
     apilayer: bool
-    investing: bool
+    investiny: bool
 
 
 @router.get("/", response_class=HTMLResponse)
@@ -36,15 +39,14 @@ async def index_view(request: Request):
         cur = cur.add(months=1)
 
     # if no cookie, enable all
-    checkboxes: Checkboxes
-    checkboxes = request.session.get(
-        "checkboxes",
-        {
-            "ecb": True,
-            "apilayer": True,
-            "investing": True,
-        },
-    )
+    default: Checkboxes = {k: True for k in Checkboxes.__annotations__.keys()}
+    session: Checkboxes
+    if session := request.session.get("checkboxes", default):
+        if default.items() <= session.items():  # session has all keys needed
+            ...  # OK, however session cookie CAN has extra keys, but who cares...
+        else:
+            session = default | session  # use what we have, if usable
+    request.session.update({"checkboxes": session})
 
     context = {
         "request": request,
@@ -52,7 +54,7 @@ async def index_view(request: Request):
         "fx_apilayer": config.list_rates(settings.APILAYER_SYMBOLS, sep=","),
         "fx_investiny": ", ".join(tuple(settings.INVESTINY_SYMBOLS.keys())),
         "options": list(reversed(options)),
-        "checkboxes": checkboxes,  # settings from last time
+        "checkboxes": session,  # settings from last time
     }
 
     return templates.TemplateResponse("index/index.jinja", context=context)
@@ -87,3 +89,14 @@ async def hx_quota_progressbar(request: Request):
         "label": label,
     }
     return templates.TemplateResponse(name="index/quota.jinja", context=context)
+
+
+@router.get("/toggle_checkbox/{key}")
+async def toggle_checkbox_in_session(
+    request: Request,
+    key: Literal["ecb", "apilayer", "investiny"],  # keys of typed dict Checkboxes
+) -> None:
+    """Toggle checkbox position to session"""
+    if dic := request.session.get("checkboxes"):
+        dic[key] = not dic[key]  # toggle current value
+        log.info("checkbox toggle", key=key, now=dic[key])

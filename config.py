@@ -28,6 +28,7 @@ def list_rates(s: str, sep: str) -> str:
 
 
 class Settings(BaseSettings):
+    # if not set, cookie will be reset each run, no big deal
     SECRET_KEY: SecretStr = SecretStr(generate_string())
 
     TELEGRAM_ENABLED: bool = False

@@ -31,7 +31,7 @@ async def fetch_data_form(
     date_to: str = Form(...),
     ecb: bool = Form(False),
     apilayer: bool = Form(False),
-    investing: bool = Form(False),
+    investiny: bool = Form(False),
 ):
 
     # send telegram message
@@ -42,17 +42,6 @@ async def fetch_data_form(
         f"<i>apilayer: </i>{apilayer}"
     )
     await alerting.telegram(text=msg)
-
-    # save for next time
-    request.session.update(
-        {
-            "checkboxes": {
-                "ecb": ecb,
-                "apilayer": apilayer,
-                "investing": investing,
-            }
-        }
-    )
 
     # date_to cant be in future –> set it to today
     now = pendulum.now(tz="UTC")
@@ -80,8 +69,8 @@ async def fetch_data_form(
         ecb_df = crud.fx.get_ecb(date_from=dic["date_from"], date_to=dic["date_to"])
     if apilayer:
         al_df = crud.fx.get_apilayer(date_from=dic["date_from"], date_to=dic["date_to"])
-    if investing:
-        inv_df = crud.fx.get_investing(
+    if investiny:
+        inv_df = crud.fx.get_investiny(
             date_from=dic["date_from"], date_to=dic["date_to"]
         )
 
@@ -99,8 +88,8 @@ async def fetch_data_form(
             ending += "-ecb"
         if apilayer:
             ending += "-apilayer"
-        if investing:
-            ending += "-investing"
+        if investiny:
+            ending += "-investiny"
     fname = Path("tmp") / f'{dic["date_from"]}_{dic["date_to"]}{ending}.xlsx'
     with pd.ExcelWriter(str(fname)) as writer:
         df_daily.to_excel(writer, sheet_name="daily", index=False)

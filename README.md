@@ -1,10 +1,10 @@
 # FX for Bea
 
-*Microapp for a friend accountant.*
+*Microapp for my friend, an accountant.*
 
-Requirements were to find **daily**, **monthly** and **spot** (last day of month) FX rates.
+Requirements were to find **daily**, **monthly** and **spot** (last day of month) FX rates for selected currencies.
 
-Some currencies are to be found on [ECB](ecbapi), but rest must come from elsewhere, because they not listed on ECB unfortunatelly. Those I found on [Apilayer exchange rates API](apilayerapi).
+Some currencies are to be found on [ECB](ecbapi), but rest must come from elsewhere, because they not listed on ECB unfortunatelly. Those I found on [Apilayer exchange rates API](apilayerapi) & investing.com (using [investiny](investiny)).
 
 To access Apilayer API, one must register to obtain API key.
 
@@ -29,21 +29,7 @@ There is no auth impemented, as we dont really need it.
 Set env variables (`.env` can be used):
 
 ```bash
-SECRET_KEY=...  # to secure cookie - 16len str is generated if not set
-
 APILAYER_API_KEY=...  # get your own:)
-```
-
-Variables below have default values (as Bea requests), but can be overriden:
-
-```bash
-BASE="EUR"  # base currency
-
-ECB_ENDPOINT="https://sdw-wsrest.ecb.europa.eu/service/data/EXR/"
-ECB_SYMBOLS="USD+CZK+HUF+RON+TRY+BGN"
-
-APILAYER_ENDPOINT="https://api.apilayer.com/exchangerates_data/"
-APILAYER_SYMBOLS="RSD,KZT,UAH,UZS"
 ```
 
 Alerting via Telegram can be used, if enabled by:

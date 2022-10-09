@@ -174,8 +174,8 @@ def get_apilayer(date_from: str, date_to: str) -> pd.DataFrame:
     return df
 
 
-def get_investing(date_from: str, date_to: str) -> pd.DataFrame:
-    logger = log.bind(date_from=date_from, date_to=date_to, source="investing.com")
+def get_investiny(date_from: str, date_to: str) -> pd.DataFrame:
+    logger = log.bind(date_from=date_from, date_to=date_to, source="investiny")
 
     from_date = pendulum.from_format(date_from, "YYYY-MM-DD")
     to_date = pendulum.from_format(date_to, "YYYY-MM-DD")
@@ -229,7 +229,7 @@ def get_investing(date_from: str, date_to: str) -> pd.DataFrame:
         .loc[:, ["index", "close", "currency"]]
         .assign(freq="M")
         .rename(columns={"index": "ts", "close": "value"})
-        .assign(source="investing.com")
+        .assign(source="investiny")
     )
 
     return df
