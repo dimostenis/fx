@@ -47,13 +47,18 @@ def get_ecb(date_from: str, date_to: str) -> pd.DataFrame:
         pd.DataFrame
     """
 
-    logger = log.bind(date_from=date_from, date_to=date_to)
+    logger = log.bind(
+        date_from=date_from,
+        date_to=date_to,
+        source="ECB",
+        symbol=settings.ECB_SYMBOLS,
+    )
 
     params = {"format": "csvdata", "startPeriod": date_from, "endPeriod": date_to}
     if csv := crud.cache.get(key=json.dumps(params)):
-        logger.info("getting data from cache", source="ECB")
+        logger.info("getting data from cache")
     else:
-        logger.info("getting data via API", source="ECB")
+        logger.info("getting data via API")
         response = requests.get(
             f"{settings.ECB_ENDPOINT}D+M.{settings.ECB_SYMBOLS}.{settings.BASE}.SP00.A",
             params=params,
@@ -112,7 +117,12 @@ def get_apilayer(date_from: str, date_to: str) -> pd.DataFrame:
         pd.DataFrame
     """
 
-    logger = log.bind(date_from=date_from, date_to=date_to)
+    logger = log.bind(
+        date_from=date_from,
+        date_to=date_to,
+        source="apilayer.com",
+        symbol=settings.APILAYER_SYMBOLS,
+    )
 
     params = {
         "start_date": date_from,
@@ -122,9 +132,9 @@ def get_apilayer(date_from: str, date_to: str) -> pd.DataFrame:
     }
     jsondata: bytes | Any  # shall be bytes if all OK
     if jsondata := crud.cache.get(key=json.dumps(params)):
-        logger.info("getting data from cache", source="apilayer.com")
+        logger.info("getting data from cache")
     else:
-        logger.info("getting data via API", source="apilayer.com")
+        logger.info("getting data via API")
         response = requests.get(
             url=f"{settings.APILAYER_ENDPOINT}timeseries",
             headers={"apikey": settings.APILAYER_API_KEY.get_secret_value()},
@@ -165,7 +175,7 @@ def get_apilayer(date_from: str, date_to: str) -> pd.DataFrame:
 
 
 def get_investing(date_from: str, date_to: str) -> pd.DataFrame:
-    logger = log.bind(date_from=date_from, date_to=date_to)
+    logger = log.bind(date_from=date_from, date_to=date_to, source="investing.com")
 
     from_date = pendulum.from_format(date_from, "YYYY-MM-DD")
     to_date = pendulum.from_format(date_to, "YYYY-MM-DD")
@@ -192,9 +202,9 @@ def get_investing(date_from: str, date_to: str) -> pd.DataFrame:
         key = f"M|{id_}|{symbol}--{date_from_usa}--{date_to_usa_monthly}"
 
         if dic := crud.cache.get(key=key):
-            logger.info("getting data from cache", source="investing.com")
+            logger.info("getting data from cache", symbol=symbol)
         else:
-            logger.info("getting data via API", source="investing.com")
+            logger.info("getting data via API", symbol=symbol)
             dic = investiny.historical.historical_data(
                 investing_id=id_,
                 from_date=date_from_usa,
@@ -227,7 +237,9 @@ def get_investing(date_from: str, date_to: str) -> pd.DataFrame:
 
 def get_investing_id(symbol: str):
     """
-    Ask for a ticker and get internal investing.com ID, so it can be used in investiny
+    Dev helper function.
+
+    Ask for a ticker and get internal investing.com ID, so it can be used in investiny.
     """
 
     res = investiny.search.search_assets(query=symbol, limit=1)

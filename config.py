@@ -1,3 +1,4 @@
+import functools
 import random
 import string
 
@@ -11,6 +12,19 @@ log = structlog.get_logger()
 def generate_string(n: int = 16):
     letters = string.ascii_lowercase
     return "".join(random.choice(letters) for _ in range(n))
+
+
+@functools.lru_cache()
+def list_rates(s: str, sep: str) -> str:
+    """
+    List all rates + separate by "sep" and add BASE curr...
+
+    list_rates("USD, CZK") => "EUR/USD, EUR/CZK"
+    """
+    lst: list[str]
+    lst = [f"{settings.BASE}/{x}" for x in s.split(sep=sep)]
+
+    return ", ".join(lst)
 
 
 class Settings(BaseSettings):
@@ -29,7 +43,8 @@ class Settings(BaseSettings):
     APILAYER_ENDPOINT: str = "https://api.apilayer.com/exchangerates_data/"
     APILAYER_SYMBOLS: str = "RSD,KZT,UAH,UZS"  # daily only
 
-    # get symbols IDs with crud.fx.get_investing_id() or find it in API
+    # Might be problematic to change via env var x))) But I dont care, as it involves
+    # getting investing IDs so its kinda "advanced" to set it up.
     INVESTINY_SYMBOLS: dict = {
         "EUR/RSD": 1690,
         "EUR/KZT": 1656,

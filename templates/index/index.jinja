@@ -16,10 +16,17 @@
             <h1>Exchange rates for Beatos</h1>
 
             <div>
-                Get FX rates for selected currencies. Some from <a
-                    href="https://sdw-wsrest.ecb.europa.eu/help/">ECB</a>,
-                some (missing on ECB) from Apilayer exchange rates <a
-                    href="https://apilayer.com/marketplace/exchangerates_data-api"> API</a>.
+                <p>
+                    Get FX rates for selected currencies. Some from <a
+                        href="https://sdw-wsrest.ecb.europa.eu/help/">ECB</a>,
+                    some (missing on ECB) from Apilayer exchange rates <a
+                        href="https://apilayer.com/marketplace/exchangerates_data-api"> API</a>.
+                </p>
+                <p>
+                    Even-though investing.com <a href="https://github.com/alvarobartt/investpy/issues/604">blocked</a>
+                    unofficial API via <a href="https://github.com/alvarobartt/investpy">investpy</a>, its still
+                    possible to get monthly data via <a href="https://github.com/alvarobartt/investiny">investiny</a>.
+                </p>
             </div>
         </div>
 
@@ -32,21 +39,42 @@
         <div class="row">
             <form hx-post="{{ url_for('fetch_data_form') }}" hx-indicator=".htmx-indicator" hx-swap="beforeend">
 
-                {# checkboxes #}
+                {# --- checkboxes --- #}
+                {# checkbox 1 #}
                 <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" role="switch" name="ecb" id="ecb"
-                        {% if checkboxes["ecb"] %}checked{% endif %}>
-                    <label class="form-check-label" for="ecb"> ECB </label>
+                    <div>
+                        <input class="form-check-input" type="checkbox" role="switch" name="ecb" id="ecb" {% if
+                            checkboxes["ecb"] %}checked{% endif %}>
+                    </div>
+                    <div>
+                        <label class="form-check-label" for="ecb">
+                            ECB <small class="text-muted">(daily/spot/monthly) {{ fx_ecb }}</small>
+                        </label>
+                    </div>
                 </div>
+                {# checkbox 2 #}
                 <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" role="switch" name="apilayer" id="apilayer"
-                        {% if checkboxes["apilayer"] %}checked{% endif %}>
-                    <label class="form-check-label" for="apilayer"> Apilayer </label>
+                    <div>
+                        <input class="form-check-input" type="checkbox" role="switch" name="apilayer" id="apilayer" {%
+                            if checkboxes["apilayer"] %}checked{% endif %}>
+                    </div>
+                    <div>
+                        <label class="form-check-label" for="apilayer">
+                            Apilayer <small class="text-muted">(daily/spot) {{ fx_apilayer }}</small>
+                        </label>
+                    </div>
                 </div>
+                {# checkbox 3 #}
                 <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" role="switch" name="investing" id="investing"
-                        {% if checkboxes["investing"] %}checked{% endif %}>
-                    <label class="form-check-label" for="investing"> investing.com </label>
+                    <div>
+                        <input class="form-check-input" type="checkbox" role="switch" name="investing" id="investing" {%
+                            if checkboxes["investing"] %}checked{% endif %}>
+                    </div>
+                    <div>
+                        <label class="form-check-label" for="investing">
+                            investing.com <small class="text-muted">(monthly) {{ fx_investiny }}</small>
+                        </label>
+                    </div>
                 </div>
 
                 {# date pickers #}

@@ -9,7 +9,9 @@ from fastapi import Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 
+import config
 import crud.cache
+from config import settings
 
 templates = Jinja2Templates(directory="templates")
 router = APIRouter()
@@ -46,6 +48,9 @@ async def index_view(request: Request):
 
     context = {
         "request": request,
+        "fx_ecb": config.list_rates(settings.ECB_SYMBOLS, sep="+"),
+        "fx_apilayer": config.list_rates(settings.APILAYER_SYMBOLS, sep=","),
+        "fx_investiny": ", ".join(tuple(settings.INVESTINY_SYMBOLS.keys())),
         "options": list(reversed(options)),
         "checkboxes": checkboxes,  # settings from last time
     }

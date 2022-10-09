@@ -16,7 +16,6 @@ from fastapi.templating import Jinja2Templates
 import alerting
 import crud.cache
 import crud.fx
-from config import settings
 
 Path("tmp").mkdir(exist_ok=True)
 router = APIRouter()
@@ -77,7 +76,6 @@ async def fetch_data_form(
     ecb_df = pd.DataFrame()
     al_df = pd.DataFrame()
     inv_df = pd.DataFrame()
-
     if ecb:
         ecb_df = crud.fx.get_ecb(date_from=dic["date_from"], date_to=dic["date_to"])
     if apilayer:
@@ -114,32 +112,22 @@ async def fetch_data_form(
 
 
 def transform(df: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    """Returns dataframes (daily, spot, monthly)"""
 
-    df_daily = (
-        df.copy()
-        .query("freq == 'D'")
-        .sort_values(["currency", "ts"], ascending=[True, True])
-        .loc[:, ["currency", "ts", "value", "source"]]
-    )
+    COLS = ["currency", "ts", "value", "source"]
+    emtpy_df = pd.DataFrame(columns=COLS)
 
-    df_monthly_existing = df.copy().query("freq == 'M'")
-    df_monthly_missing = (
-        pd.DataFrame(
-            columns=list(df_monthly_existing["ts"].unique()),
-            index=settings.APILAYER_SYMBOLS.split(","),
-        )
-        .reset_index()
-        .melt(id_vars="index")
-        .rename(columns={"index": "currency", "variable": "ts"})
-        .assign(freq="M")  # for cleaner concat
-        .assign(value=-1)
-        .assign(source="apilayer")
-    )
-    df_monthly = (
-        pd.concat([df_monthly_existing, df_monthly_missing])
-        .sort_values(["value", "currency", "ts"], ascending=[False, True, True])
-        .loc[:, ["currency", "ts", "value", "source"]]
-    )
+    df_daily = df.copy().query("freq == 'D'")
+    if not df_daily.empty:
+        df_daily = df_daily.sort_values(["currency", "ts"]).loc[:, COLS]
+    else:
+        df_daily = emtpy_df.copy()
+
+    df_monthly = df.copy().query("freq == 'M'")
+    if not df_monthly.empty:
+        df_monthly = df_monthly.sort_values(["currency", "ts"]).loc[:, COLS]
+    else:
+        df_monthly = emtpy_df.copy()
 
     df_spot = df.copy().query("freq == 'D'")
     if not df_spot.empty:
@@ -151,14 +139,14 @@ def transform(df: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFram
         df_spot = (
             df_spot.sort_values("ts", ascending=False)
             .drop_duplicates(keep="first", subset="_ym")
-            .sort_values(["currency", "ts"], ascending=[True, True])
-            .loc[:, ["currency", "ts", "value", "source"]]
+            .sort_values(["currency", "ts"])
+            .loc[:, COLS]
         )
         for col in df_spot.columns:
             if col.startswith("_"):
                 del df_spot[col]
     else:
         # return empty DF in correct shape
-        df_spot = df_spot.loc[:, ["currency", "ts", "value", "source"]]
+        df_spot = emtpy_df.copy()
 
     return df_daily, df_spot, df_monthly

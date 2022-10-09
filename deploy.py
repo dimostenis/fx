@@ -11,7 +11,7 @@ def bye(retcode: int = 0) -> NoReturn:
 
 
 def run(cmd: str) -> None:
-    print(f" :: running :: {cmd}")
+    print(f":: running :: {cmd}")
     if subprocess.run(cmd, shell=True).returncode != 0:
         bye()
 
@@ -84,7 +84,7 @@ def main():
     run("docker compose build")
 
     # just let user start it as it wont be really detached as it goes via python
-    print("\n :: run :: docker compose -f docker-compose.prod.yml up -d")
+    print("\n:: run :: docker compose -f docker-compose.prod.yml up -d")
     # run("docker compose -f docker-compose.prod.yml up")
 
 
