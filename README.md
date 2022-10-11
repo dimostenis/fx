@@ -14,7 +14,7 @@ To access Apilayer API, one must register to obtain API key.
 
 ## Cookies
 
-App uses 1 first party cookie to save last form checkboxes.
+App uses 1 first party cookie [lax] to save last form checkboxes.
 
 ## Auth
 

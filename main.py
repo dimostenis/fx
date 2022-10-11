@@ -35,7 +35,7 @@ app.include_router(fx_forms, prefix="/fx", tags=["forms"])
 @app.exception_handler(Exception)
 async def any_exception(request: Request, exc: Exception):
     """
-    If app crashes for realz, not by manually raising HTTPException.
+    If app raises any kind of Exception.
 
     So, let admins know someone is not using it properly by loggin it in:
     1. stdout via structlog
