@@ -39,8 +39,8 @@ async def index_view(request: Request):
         cur = cur.add(months=1)
 
     # if no cookie, enable all
-    default: Checkboxes = {k: True for k in Checkboxes.__annotations__.keys()}
     session: Checkboxes
+    default = {k: True for k in Checkboxes.__annotations__.keys()}
     if session := request.session.get("checkboxes", default):
         if default.items() <= session.items():  # session has all keys needed
             ...  # OK, however session cookie CAN has extra keys, but who cares...
