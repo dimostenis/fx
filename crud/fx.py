@@ -55,7 +55,8 @@ def get_ecb(date_from: str, date_to: str) -> pd.DataFrame:
     )
 
     params = {"format": "csvdata", "startPeriod": date_from, "endPeriod": date_to}
-    if csv := crud.cache.get(key=json.dumps(params)):
+    key = params | {"symbols": settings.ECB_SYMBOLS, "base": settings.BASE}
+    if csv := crud.cache.get(key=json.dumps(key)):
         logger.info("getting data from cache")
     else:
         logger.info("getting data via API")
@@ -65,7 +66,7 @@ def get_ecb(date_from: str, date_to: str) -> pd.DataFrame:
         )
         if response.status_code // 100 == 2:
             csv = response.content
-            crud.cache.create(key=json.dumps(params), obj=csv)
+            crud.cache.create(key=json.dumps(key), obj=csv)
         else:
             raise HTTPException(status_code=500, detail="failed to fetch data from ECB")
 

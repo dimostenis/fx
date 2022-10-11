@@ -82,10 +82,9 @@ def main():
     run("docker compose stop")
     run("git pull")
     run("docker compose build")
+    run("docker compose -f docker-compose.prod.yml up -d")
 
-    # just let user start it as it wont be really detached as it goes via python
-    print("\n:: run :: docker compose -f docker-compose.prod.yml up -d")
-    # run("docker compose -f docker-compose.prod.yml up")
+    bye()
 
 
 if __name__ == "__main__":

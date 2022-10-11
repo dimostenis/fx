@@ -33,12 +33,14 @@ async def fetch_data_form(
 ):
 
     # send telegram message
+    if apilayer_remaining := crud.cache.get(key="apilayer_quota"):
+        apilayer_remaining = apilayer_remaining.get("remaining")
     msg = (
         "<b>Bea FX app run</b>\n\n"
         f"{date_from}-{date_to}\n"
-        f"<i>ecb: </i>{ecb}\n"
-        f"<i>apilayer: </i>{apilayer}\n"
-        f"<i>investiny: </i>{investiny}"
+        f"<i>ecb:</i> {ecb}\n"
+        f"<i>apilayer:</i> {apilayer} ({apilayer_remaining})\n"
+        f"<i>investiny:</i> {investiny}"
     )
     await alerting.telegram(text=msg)
 

@@ -38,7 +38,7 @@ class Settings(BaseSettings):
     BASE: str = "EUR"
 
     ECB_ENDPOINT: str = "https://sdw-wsrest.ecb.europa.eu/service/data/EXR/"
-    ECB_SYMBOLS: str = "USD+CZK+HUF+RON+TRY+BGN"  # we can get monthly too
+    ECB_SYMBOLS: str = "USD+CZK+HUF+RON+TRY+BGN+HRK+GBP"  # we can get monthly too
 
     APILAYER_API_KEY: SecretStr
     APILAYER_ENDPOINT: str = "https://api.apilayer.com/exchangerates_data/"

@@ -58,13 +58,21 @@ docker-compose up
 
 Find running app at `localhost:500`
 
-**3. Deploy on server**
+**3. Deploy locally with `deploy.py`**
+
+1. `python deploy.py`
+1. type (or set env var) "localhost" as `FX_URI` when asked
+
+Find running app at `localhost:500`
+
+**4. Deploy on server with `deploy.py`**
 
 There is no CI, all manually:
 
 1. push to repo
 1. ssh to machine/repo
 1. `python deploy.py`
+1. type (or set env var) your desired url as `FX_URI` when asked
 
 ## Contribution
 
