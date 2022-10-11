@@ -37,7 +37,8 @@ async def fetch_data_form(
         "<b>Bea FX app run</b>\n\n"
         f"{date_from}-{date_to}\n"
         f"<i>ecb: </i>{ecb}\n"
-        f"<i>apilayer: </i>{apilayer}"
+        f"<i>apilayer: </i>{apilayer}\n"
+        f"<i>investiny: </i>{investiny}"
     )
     await alerting.telegram(text=msg)
 
