@@ -65,10 +65,8 @@ async def hx_quota_progressbar(request: Request):
 
     APILAYER_DEFAULT_MAX = 250
 
-    dic = crud.cache.get("apilayer_quota")
-    if dic:
-        ...
-    else:
+    dic: dict | None = crud.cache.get("apilayer_quota")
+    if not dic:
         # just first run, before cache is populated
         dic = {
             "remaining": random.randint(0, APILAYER_DEFAULT_MAX),
@@ -76,10 +74,14 @@ async def hx_quota_progressbar(request: Request):
         }
 
     valuenow = dic["remaining"]
-    valuemax = dic["limit"]
+    valuemax = dic.get("limit", APILAYER_DEFAULT_MAX)
 
-    width = int(valuenow / valuemax * 100)
-    label = f"{valuenow} / {valuemax}"
+    if valuemax > 0:
+        width: int = int(valuenow / valuemax * 100)
+    else:
+        # avoid division by zero
+        width = 0
+    label: str = f"{valuenow} / {valuemax}"
 
     context = {
         "request": request,
